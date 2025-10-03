@@ -1,17 +1,10 @@
 """
-controls.py
-Gesture-based system control using MediaPipe Hands + pycaw (Windows).
 Gestures:
  - Thumbs Up     -> volume up
  - Thumbs Down   -> volume down
  - Open Palm     -> mute/unmute toggle
  - Fist (closed) -> play/pause toggle
-
-Run after activating the venv where mediapipe & pycaw are installed.
-
-Author: (you)
 """
-
 import time
 import math
 import collections
@@ -20,14 +13,11 @@ import mediapipe as mp
 import numpy as np
 import ctypes
 
-# pycaw imports for Windows audio control
+
 from ctypes import POINTER, cast
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
-# -------------------------------
-# Helper: system audio control (Windows)
-# -------------------------------
 class SystemAudio:
     def __init__(self):
         devices = AudioUtilities.GetSpeakers()
@@ -53,9 +43,6 @@ class SystemAudio:
     def is_muted(self) -> bool:
         return bool(self.volume.GetMute())
 
-# -------------------------------
-# Helper: send media play/pause (Windows)
-# -------------------------------
 def send_play_pause():
     VK_MEDIA_PLAY_PAUSE = 0xB3
     # key down, key up
@@ -63,9 +50,7 @@ def send_play_pause():
     time.sleep(0.02)
     ctypes.windll.user32.keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, 0)
 
-# -------------------------------
-# Gesture detection utilities
-# -------------------------------
+
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
@@ -81,9 +66,6 @@ def finger_is_up(coords, finger_tip_idx, finger_pip_idx):
     return coords[finger_tip_idx][1] < coords[finger_pip_idx][1]
 
 def thumb_is_extended(coords, handedness_label):
-    # For thumb we check horizontal extension relative to IP joint.
-    # handedness_label: "Left" or "Right" as provided by mediapipe
-    # Use tip (4) and IP (3) or MCP (2)
     tip_x = coords[4][0]
     ip_x = coords[3][0]
     # if right hand, thumb extended to the right (tip_x > ip_x), else left
@@ -141,9 +123,7 @@ def classify_gesture(coords, handedness_label):
 
     return None
 
-# -------------------------------
-# Main loop
-# -------------------------------
+
 def main():
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
@@ -233,3 +213,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
